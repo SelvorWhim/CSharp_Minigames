@@ -54,10 +54,10 @@ namespace FourInARow
                 case MoveResult.MoveSuccessful:
                     gameBoard.PrintBoard();
                     State = (GameState)(((int)State + 1) % 2);
-                    Console.WriteLine($"Move successful! It's player {State + 1}'s turn"); // after state update
+                    Console.WriteLine($"Move successful! It's player {(int)State + 1}'s turn"); // after state update
                     break;
                 case MoveResult.GameEnded:
-                    Console.WriteLine($"Game over! Player {State - 1} won!");
+                    Console.WriteLine($"Game over! Player {(int)State - 1} won!");
                     gameBoard.PrintBoard();
                     State += 2;
                     break;
@@ -126,6 +126,15 @@ namespace FourInARow
             public void PrintBoard()
             {
                 // TODO
+                // from top to bottom - from high row index to low
+                for (int i = numRows - 1; i >= 0; i--)
+                {
+                    foreach (Column col in cols)
+                    {
+                        Console.Write(col.ChipAt(i) + " "); // todo: get rid of extra space at the end
+                    }
+                    Console.WriteLine(""); // line break. Will be an extra one at the end, but the spacing is probably fine.
+                }
             }
         }
 
@@ -154,6 +163,17 @@ namespace FourInARow
                     NumChips++;
                     return true;
                 }
+            }
+
+            // low index is lower row
+            // option: turn into indexer (col[row] rather than col.ChipAt(row)) // nope, changing it to map color
+            private static Dictionary<ChipColor, char> chipSymbols = new Dictionary<ChipColor, char> {
+                { ChipColor.P1, '#' },
+                { ChipColor.P2, '@' }
+            };
+            public char ChipAt(int rowIndex)
+            {
+                return rowIndex < NumChips ? chipSymbols[chips[rowIndex]] : ' ';
             }
         }
 
