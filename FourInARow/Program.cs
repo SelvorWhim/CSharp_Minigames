@@ -10,13 +10,20 @@ namespace FourInARow
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Beginning 2-player game of 4-in-a-row"); // todo: indicate number of rows and columns? or just print the board...
             Game game = new Game();
+            Console.WriteLine($"Beginning 2-player game of 4-in-a-row. It's player {(int)game.State + 1}'s turn");
             while ((int)game.State <= 1)
             {
                 Console.WriteLine("input column: ");
-                int inputColumnNumber = Convert.ToInt32(Console.ReadLine()); // 1-indexed // todo: what if the user inputs garbage
-                game.MakeMove(inputColumnNumber - 1);
+                try
+                {
+                    int inputColumnNumber = int.Parse(Console.ReadLine()); // 1-indexed // todo: what if the user inputs garbage?
+                    game.MakeMove(inputColumnNumber - 1);
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine($"Invalid input! It's still player {(int)game.State + 1}'s turn");
+                }
             }
         }
     }
@@ -49,7 +56,7 @@ namespace FourInARow
             switch (res)
             {
                 case MoveResult.MoveFailed:
-                    Console.WriteLine("You can't put that there!");
+                    Console.WriteLine($"You can't put that there! It's still player {(int)State + 1}'s turn");
                     break;
                 case MoveResult.MoveSuccessful:
                     gameBoard.PrintBoard();
@@ -125,7 +132,6 @@ namespace FourInARow
 
             public void PrintBoard()
             {
-                // TODO
                 // from top to bottom - from high row index to low
                 for (int i = numRows - 1; i >= 0; i--)
                 {
