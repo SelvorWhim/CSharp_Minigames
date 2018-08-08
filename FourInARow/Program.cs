@@ -17,7 +17,7 @@ namespace FourInARow
                 Console.WriteLine("input column: ");
                 try
                 {
-                    int inputColumnNumber = int.Parse(Console.ReadLine()); // 1-indexed // todo: what if the user inputs garbage?
+                    int inputColumnNumber = int.Parse(Console.ReadLine()); // 1-indexed
                     game.MakeMove(inputColumnNumber - 1);
                 }
                 catch (FormatException)
@@ -43,7 +43,7 @@ namespace FourInARow
             gameBoard.PrintBoard(); // prints board at start of game
         }
 
-        // todo-later - some interface other than just printing results
+        // option - some interface other than printing results
         public void MakeMove(int columnIndex)
         {
             if (State >= GameState.WinP1) // game over man, game over!
@@ -118,16 +118,34 @@ namespace FourInARow
             // center row/col - indexes of chip around which to check
             private bool CheckForWin(ChipColor chipColor, int centerRow, int centerCol)
             {
-                return CheckForWinInWindow(chipColor, Math.Max(centerRow - (IN_A_ROW - 1), 0), Math.Min(centerRow + (IN_A_ROW - 1), numRows), Math.Max(centerCol - (IN_A_ROW - 1), 0), Math.Min(centerCol - (IN_A_ROW - 1), numCols));
+                return CheckForWinInWindow(chipColor, centerRow, centerCol, Math.Max(centerRow - (IN_A_ROW - 1), 0), Math.Min(centerRow + (IN_A_ROW - 1), numRows), Math.Max(centerCol - (IN_A_ROW - 1), 0), Math.Min(centerCol + (IN_A_ROW - 1), numCols));
             }
 
-            private bool CheckForWinInWindow(ChipColor chipColor, int rowFrom, int rowTo, int colFrom, int colTo)
+            private bool CheckForWinInWindow(ChipColor chipColor, int centerRow, int centerCol, int rowFrom, int rowTo, int colFrom, int colTo)
             {
-                if (rowTo - rowFrom + 1 < IN_A_ROW || colFrom - colFrom + 1 < IN_A_ROW) // window's too small...this shouldn't really happen unless the board is smaller than the number in a row (e.g. 4x4)
+                // check if window is too small: (this shouldn't really happen unless the board is smaller than the number in a row (e.g. 4x4))
+                if (rowTo - rowFrom + 1 < IN_A_ROW || colTo - colFrom + 1 < IN_A_ROW)
                 {
                     return false;
                 }
-                return true; // TODO
+                // check for win in row:
+                int streak = 0;
+                for (int i = colFrom; i < colTo; i++)
+                {
+                    if (cols[i].ChipColorAt(centerRow) == chipColor)
+                    {
+                        streak++;
+                        if (streak >= IN_A_ROW)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        streak = 0;
+                    }
+                }
+                return false; // TODO
             }
 
             public void PrintBoard()
@@ -137,7 +155,7 @@ namespace FourInARow
                 {
                     foreach (Column col in cols)
                     {
-                        Console.Write(col.ChipAt(i) + " "); // todo: get rid of extra space at the end
+                        Console.Write(col.ChipAt(i) + " "); // todo: get rid of extra space at the end (not that it matters much)
                     }
                     Console.WriteLine(""); // line break. Will be an extra one at the end, but the spacing is probably fine.
                 }
@@ -181,9 +199,13 @@ namespace FourInARow
             {
                 return rowIndex < NumChips ? chipSymbols[chips[rowIndex]] : ' ';
             }
+            public ChipColor ChipColorAt(int rowIndex)
+            {
+                return rowIndex < NumChips ? chips[rowIndex] : ChipColor.Empty;
+            }
         }
 
-        private enum ChipColor { P1, P2 /*, Empty */ }; // equal to game state if game isn't over // red and white? Whatever, this can be generalized to more players, if 3-player 4-in-a-row is a thing
+        private enum ChipColor { P1, P2, Empty }; // equal to game state if game isn't over // red and white? Whatever, this can be generalized to more players, if 3-player 4-in-a-row is a thing
         public enum GameState { TurnP1 = 0, TurnP2 = 1, WinP1 = 2, WinP2 = 3 } // win is turn + 2, next turn is (turn+1)%2
         public enum MoveResult { MoveFailed, MoveSuccessful, GameEnded } // win is turn + 2, next turn is (turn+1)%2
     }
