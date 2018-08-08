@@ -64,9 +64,9 @@ namespace FourInARow
                     Console.WriteLine($"Move successful! It's player {(int)State + 1}'s turn"); // after state update
                     break;
                 case MoveResult.GameEnded:
+                    State += 2;
                     Console.WriteLine($"Game over! Player {(int)State - 1} won!");
                     gameBoard.PrintBoard();
-                    State += 2;
                     break;
             }
         }
@@ -133,6 +133,23 @@ namespace FourInARow
                 for (int i = colFrom; i < colTo; i++)
                 {
                     if (cols[i].ChipColorAt(centerRow) == chipColor)
+                    {
+                        streak++;
+                        if (streak >= IN_A_ROW)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        streak = 0;
+                    }
+                }
+                // check for win in column:
+                streak = 0;
+                for (int i = rowFrom; i < rowTo; i++)
+                {
+                    if (cols[centerCol].ChipColorAt(i) == chipColor)
                     {
                         streak++;
                         if (streak >= IN_A_ROW)
